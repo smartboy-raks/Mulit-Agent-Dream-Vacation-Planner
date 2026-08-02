@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dream Vacation Planner</title>
+  <style>
+    :root {
+      --bg-top: #0f4c81;
+      --bg-mid: #118ab2;
+      --bg-bottom: #f4fbff;
+      --panel: rgba(255, 255, 255, 0.17);
+      --panel-strong: rgba(255, 255, 255, 0.28);
+      --border: rgba(255, 255, 255, 0.26);
+      --text: #0e2a3d;
+      --text-soft: #47657d;
+      --white: #ffffff;
+      --accent: #ff8a3d;
+      --accent-strong: #ff6b1a;
+      --accent-soft: rgba(255, 138, 61, 0.18);
+      --success: #1f9d73;
+      --shadow: 0 24px 60px rgba(5, 49, 80, 0.22);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --max-width: 1280px;
+      --transition: 220ms ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 183, 94, 0.32), transparent 28%),
+        radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.22), transparent 18%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 34%, #75d1f0 60%, var(--bg-bottom) 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      filter: blur(14px);
+      pointer-events: none;
+      opacity: 0.45;
+      z-index: 0;
+    }
+
+    body::before {
+      top: -110px;
+      right: -60px;
+      background: rgba(255, 173, 96, 0.48);
+    }
+
+    body::after {
+      bottom: -120px;
+      left: -80px;
+      background: rgba(135, 226, 255, 0.38);
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      width: min(calc(100% - 32px), var(--max-width));
+      margin: 0 auto;
+      padding: 28px 0 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--white);
+    }
+
+    .brand-badge {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.12));
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      font-size: 1.8rem;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem);
+      letter-spacing: 0.02em;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.95rem;
+    }
+
+    .utility-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chip-button {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--white);
+      border-radius: 999px;
+      padding: 10px 16px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+    }
+
+    .chip-button:hover,
+    .chip-button:focus-visible {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.38);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      gap: 24px;
+      margin-bottom: 28px;
+      align-items: stretch;
+    }
+
+    .glass-card {
+      position: relative;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.12));
+      border: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-panel {
+      padding: clamp(24px, 4vw, 42px);
+    }
+
+    .hero-panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 66%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.18);
+      color: var(--white);
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+      margin-bottom: 18px;
+    }
+
+    .hero h2 {
+      margin: 0;
+      color: var(--white);
+      font-size: clamp(2.5rem, 5vw, 4.6rem);
+      line-height: 0.96;
+      max-width: 10ch;
+    }
+
+    .hero h2 span {
+      color: #ffd166;
+    }
+
+    .hero-copy {
+      margin: 18px 0 28px;
+      max-width: 58ch;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.03rem;
+      line-height: 1.7;
+    }
+
+    .search-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      backdrop-filter: blur(10px);
+      margin-bottom: 16px;
+    }
+
+    .search-wrap input {
+      border: 0;
+      outline: none;
+      border-radius: 18px;
+      padding: 16px 18px;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--text);
+      width: 100%;
+    }
+
+    .search-wrap input::placeholder {
+      color: #6a8398;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .ghost-button {
+      border: 0;
+      border-radius: 18px;
+      padding: 15px 20px;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition);
+      font-weight: 700;
+    }
+
+    .primary-button {
+      color: var(--white);
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      box-shadow: 0 16px 26px rgba(255, 107, 26, 0.3);
+    }
+
+    .primary-button:hover,
+    .primary-button:focus-visible,
+    .secondary-button:hover,
+    .secondary-button:focus-visible,
+    .ghost-button:hover,
+    .ghost-button:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .secondary-button {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .ghost-button {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .preference-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .preference-box strong,
+    .preference-box span {
+      color: var(--white);
+    }
+
+    .preference-box strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .preference-box span {
+      display: block;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .preference-select,
+    .preference-input {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--text);
+      outline: none;
+    }
+
+    .preference-select {
+      margin-bottom: 12px;
+      appearance: none;
+    }
+
+    .preference-input[hidden] {
+      display: none;
+    }
+
+    .hero-stat {
+      min-width: 120px;
+      padding: 14px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.16);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-size: 1.3rem;
+      margin-bottom: 3px;
+    }
+
+    .preview-panel {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .floating-card {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: var(--white);
+      animation: float 5.6s ease-in-out infinite;
+    }
+
+    .floating-card:nth-child(2) {
+      animation-delay: 0.5s;
+    }
+
+    .floating-card:nth-child(3) {
+      animation-delay: 1s;
+    }
+
+    .floating-card h3,
+    .floating-card p {
+      margin: 0;
+    }
+
+    .floating-card h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .floating-card p {
+      color: rgba(255, 255, 255, 0.84);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .mini-progress {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .mini-progress span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffd166, var(--accent));
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 0 18px;
+    }
+
+    .section-heading h3,
+    .section-heading p {
+      margin: 0;
+    }
+
+    .section-heading h3 {
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      color: var(--white);
+    }
+
+    .section-heading p {
+      color: rgba(255, 255, 255, 0.85);
+      max-width: 54ch;
+      line-height: 1.6;
+    }
+
+    .destinations {
+      margin-bottom: 32px;
+    }
+
+    .destination-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .destination-card {
+      position: relative;
+      padding: 20px;
+      min-height: 180px;
+      border: 0;
+      cursor: pointer;
+      text-align: left;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.68));
+      color: var(--text);
+      box-shadow: 0 18px 30px rgba(22, 78, 109, 0.14);
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      overflow: hidden;
+    }
+
+    .destination-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -18px -48px auto;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(17, 138, 178, 0.22), transparent 70%);
+    }
+
+    .destination-card:hover,
+    .destination-card:focus-visible {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 36px rgba(10, 69, 102, 0.2);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(242, 251, 255, 0.82));
+    }
+
+    .destination-card .emoji {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .destination-card h4,
+    .destination-card p {
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .destination-card h4 {
+      font-size: 1.08rem;
+      margin-bottom: 8px;
+    }
+
+    .destination-card p {
+      color: var(--text-soft);
+      line-height: 1.5;
+      font-size: 0.93rem;
+    }
+
+    .workflow {
+      display: grid;
+      gap: 22px;
+    }
+
+    .progress-shell {
+      padding: 22px 24px;
+    }
+
+    .progress-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      color: var(--white);
+    }
+
+    .progress-track {
+      height: 14px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffe28a, var(--accent));
+      transition: width 400ms ease;
+    }
+
+    .progress-labels {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stage-pill {
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+    }
+
+    .stage-pill.active {
+      background: rgba(255, 255, 255, 0.22);
+      color: var(--white);
+      border-color: rgba(255, 255, 255, 0.34);
+    }
+
+    .stage-pill.complete {
+      background: rgba(32, 179, 128, 0.2);
+      color: var(--white);
+      border-color: rgba(143, 255, 212, 0.36);
+    }
+
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .agent-card {
+      padding: 22px;
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .agent-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .agent-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--white);
+    }
+
+    .agent-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 1.3rem;
+    }
+
+    .agent-title h4,
+    .agent-title p {
+      margin: 0;
+    }
+
+    .agent-title p {
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 0.9rem;
+    }
+
+    .status-badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .status-badge.live {
+      background: rgba(255, 138, 61, 0.2);
+      border-color: rgba(255, 193, 140, 0.3);
+    }
+
+    .agent-context {
+      color: rgba(255, 255, 255, 0.88);
+      line-height: 1.65;
+      font-size: 0.95rem;
+      min-height: 78px;
+    }
+
+    .agent-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .style-options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .style-option {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--white);
+      text-align: left;
+      cursor: pointer;
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+    }
+
+    .style-option:hover,
+    .style-option:focus-visible {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .style-option.selected {
+      background: rgba(255, 138, 61, 0.24);
+      border-color: rgba(255, 208, 183, 0.45);
+    }
+
+    .style-option strong,
+    .style-option span {
+      display: block;
+    }
+
+    .style-option span {
+      margin-top: 6px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.55;
+      font-size: 0.92rem;
+    }
+
+    .content-panel {
+      flex: 1;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--text);
+      overflow: auto;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .content-panel.empty {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px dashed rgba(14, 42, 61, 0.18);
+    }
+
+    .content-panel h2,
+    .content-panel h3,
+    .content-panel h4 {
+      margin-top: 0;
+      color: #0b3852;
+    }
+
+    .content-panel p,
+    .content-panel li {
+      line-height: 1.7;
+    }
+
+    .content-panel ul,
+    .content-panel ol {
+      padding-left: 20px;
+    }
+
+    .content-panel code {
+      background: rgba(17, 138, 178, 0.08);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .editor-wrap {
+      display: grid;
+      gap: 10px;
+    }
+
+    .editor-wrap[hidden] {
+      display: none;
+    }
+
+    .itinerary-editor {
+      width: 100%;
+      min-height: 180px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 18px;
+      padding: 14px 16px;
+      resize: vertical;
+      outline: none;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .editor-hint {
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .context-card {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.14);
+      color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .context-card strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .error-banner {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255, 107, 107, 0.16);
+      color: #fff5f5;
+      border: 1px solid rgba(255, 196, 196, 0.28);
+    }
+
+    .error-banner.visible {
+      display: block;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 28, 43, 0.52);
+      backdrop-filter: blur(14px);
+      z-index: 15;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 220ms ease, visibility 220ms ease;
+    }
+
+    .loading-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .loading-card {
+      width: min(92vw, 360px);
+      padding: 28px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: var(--white);
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .spinner {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 18px;
+      border: 4px solid rgba(255, 255, 255, 0.22);
+      border-top-color: #ffd166;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .loading-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.84);
+      line-height: 1.6;
+    }
+
+    .chatbot-section {
+      margin-top: 32px;
+      display: grid;
+      gap: 20px;
+      position: relative;
+      padding: 28px;
+      border-radius: 30px;
+      background: linear-gradient(145deg, rgba(8, 82, 116, 0.88), rgba(21, 131, 169, 0.86) 48%, rgba(255, 184, 107, 0.82));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 28px 50px rgba(7, 58, 83, 0.22);
+      overflow: hidden;
+    }
+
+    .chatbot-section::before {
+      content: "";
+      position: absolute;
+      inset: auto -40px -60px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 244, 214, 0.34), transparent 68%);
+      pointer-events: none;
+    }
+
+    .chatbot-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .chatbot-card,
+    .sources-card {
+      padding: 24px;
+      background: rgba(8, 46, 68, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .chatbot-card h4,
+    .sources-card h4,
+    .chatbot-card p,
+    .sources-card p {
+      margin-top: 0;
+    }
+
+    .chatbot-copy,
+    .sources-copy {
+      color: rgba(255, 255, 255, 0.84);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .chatbot-messages {
+      display: grid;
+      gap: 12px;
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 4px;
+      margin-bottom: 16px;
+    }
+
+    .chat-message {
+      padding: 14px 16px;
+      border-radius: 18px;
+      line-height: 1.65;
+      box-shadow: 0 14px 22px rgba(16, 75, 104, 0.12);
+    }
+
+    .chat-message.user {
+      background: linear-gradient(135deg, rgba(255, 245, 224, 0.96), rgba(255, 231, 199, 0.92));
+      color: #143448;
+      margin-left: 28px;
+    }
+
+    .chat-message.assistant {
+      background: linear-gradient(135deg, rgba(15, 101, 134, 0.9), rgba(9, 70, 98, 0.88));
+      color: var(--white);
+      border: 1px solid rgba(180, 238, 255, 0.22);
+      margin-right: 28px;
+    }
+
+    .chat-message strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+    }
+
+    .chatbot-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .chatbot-input {
+      width: 100%;
+      min-height: 110px;
+      border: 1px solid rgba(255, 240, 214, 0.28);
+      border-radius: 18px;
+      padding: 14px 16px;
+      resize: vertical;
+      outline: none;
+      background: rgba(255, 249, 239, 0.94);
+      color: #143448;
+    }
+
+    .chatbot-input::placeholder {
+      color: #6f7f89;
+    }
+
+    .chatbot-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chatbot-meta {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.9rem;
+    }
+
+    .footer-note {
+      margin-top: 26px;
+      text-align: center;
+      color: rgba(14, 42, 61, 0.72);
+      font-size: 0.92rem;
+    }
+
+    .fade-up {
+      animation: fadeUp 600ms ease both;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1120px) {
+      .destination-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .agent-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-card {
+        min-height: 0;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar,
+      .section-heading,
+      .progress-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .search-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .page-shell {
+        width: min(calc(100% - 20px), var(--max-width));
+        padding-top: 20px;
+      }
+
+      .destination-grid,
+      .progress-labels {
+        grid-template-columns: 1fr;
+      }
+
+      .utility-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .hero-panel,
+      .preview-panel,
+      .progress-shell,
+      .agent-card,
+      .chatbot-card,
+      .sources-card {
+        padding: 20px;
+      }
+
+      .hero h2 {
+        max-width: 100%;
+      }
+
+      .chatbot-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+    <div class="loading-card">
+      <div class="spinner" aria-hidden="true"></div>
+      <h3 id="loadingTitle">Planning in progress</h3>
+      <p id="loadingMessage">One of the agents is building your next vacation idea.</p>
+    </div>
+  </div>
+
+  <main class="page-shell">
+    <header class="topbar fade-up">
+      <div class="brand">
+        <div class="brand-badge">✈️</div>
+        <div>
+          <h1>Dream Vacation Planner</h1>
+          <p>Three AI travel agents, one polished trip plan.</p>
+        </div>
+      </div>
+      <div class="utility-actions">
+        <button class="chip-button" id="muteButton" type="button" aria-pressed="false">🎵 Music On</button>
+        <button class="chip-button" id="scrollWorkflowButton" type="button">View Agent Workflow</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="glass-card hero-panel fade-up">
+        <div class="eyebrow">🌍 Multi-Agent Travel Studio</div>
+        <h2>Plan a <span>dream vacation</span> with AI teamwork.</h2>
+        <p class="hero-copy">
+          Search any destination, compare vacation styles, approve the itinerary you like, and turn it into a full travel guide with packing tips, local advice, and daily plans.
+        </p>
+
+        <div class="search-wrap">
+          <input id="destinationInput" type="text" placeholder="Search a destination like Tokyo, Bali, or New York" aria-label="Destination search">
+          <button class="primary-button" id="startPlanningButton" type="button">Start Planning</button>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong>3</strong>
+            Coordinated AI agents
+          </div>
+          <div class="hero-stat">
+            <strong>10</strong>
+            Featured dream spots
+          </div>
+          <div class="hero-stat">
+            <strong>1</strong>
+            Complete travel guide
+          </div>
+        </div>
+
+        <div class="preference-box">
+          <strong>Trip Vibe</strong>
+          <span>Pick the main kind of trip you want first. If none of the common choices fit, use Other and describe it in your own words.</span>
+          <select class="preference-select" id="preferenceSelect" aria-label="Trip goal">
+            <option value="">No specific preference</option>
+            <option value="Beach">Beach and relaxing views</option>
+            <option value="Nature">Nature walks and scenery</option>
+            <option value="Food">Food and local markets</option>
+            <option value="Luxury">Luxury and comfort</option>
+            <option value="Family">Family friendly</option>
+            <option value="Nightlife">Nightlife and energy</option>
+            <option value="History">History and landmarks</option>
+            <option value="Other">Other</option>
+          </select>
+          <input class="preference-input" id="preferenceInput" type="text" hidden placeholder="Describe what you want, like: scenic trail walk with skyline views or beachy day trip from the city">
+        </div>
+      </div>
+
+      <aside class="glass-card preview-panel fade-up">
+        <div class="floating-card">
+          <h3>Agent 1: Style Explorer</h3>
+          <p>Finds three vacation directions based on the destination and trip vibe.</p>
+          <div class="mini-progress"><span style="width: 33%"></span></div>
+        </div>
+        <div class="floating-card">
+          <h3>Agent 2: Itinerary Builder</h3>
+          <p>Creates attractions, hotels, food stops, activities, transport, and budget details.</p>
+          <div class="mini-progress"><span style="width: 66%"></span></div>
+        </div>
+        <div class="floating-card">
+          <h3>Agent 3: Travel Guide Maker</h3>
+          <p>Turns the approved plan into a practical guide with customs, safety, and packing help.</p>
+          <div class="mini-progress"><span style="width: 100%"></span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="destinations fade-up">
+      <div class="section-heading">
+        <div>
+          <h3>Popular Destinations</h3>
+          <p>Tap a destination card to auto-fill the search bar and kick off a travel concept in seconds.</p>
+        </div>
+      </div>
+      <div class="destination-grid" id="destinationGrid"></div>
+    </section>
+
+    <section class="workflow" id="workflowSection">
+      <div class="glass-card progress-shell fade-up">
+        <div class="progress-top">
+          <div>
+            <strong style="display:block; font-size:1.1rem; margin-bottom:4px; color: var(--white);">Planner Progress</strong>
+            <span id="progressText" style="color: rgba(255,255,255,0.82);">Waiting for your destination.</span>
+          </div>
+          <div class="error-banner" id="errorBanner" role="alert"></div>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-labels">
+          <div class="stage-pill" data-stage="1">Agent 1: Vacation Styles</div>
+          <div class="stage-pill" data-stage="2">Agent 2: Detailed Itinerary</div>
+          <div class="stage-pill" data-stage="3">Agent 3: Final Travel Guide</div>
+        </div>
+      </div>
+
+      <div class="agent-grid">
+        <article class="glass-card agent-card fade-up">
+          <div class="agent-header">
+            <div class="agent-title">
+              <div class="agent-icon">🧭</div>
+              <div>
+                <h4>Agent 1</h4>
+                <p>Destination Style Generator</p>
+              </div>
+            </div>
+            <div class="status-badge" id="agent1Status">Idle</div>
+          </div>
+          <div class="agent-context" id="agent1Context">
+            Enter a destination to generate three different vacation styles for your trip.
+          </div>
+          <div class="agent-actions">
+            <button class="secondary-button" id="generateStylesButton" type="button">Generate 4 Styles</button>
+          </div>
+          <div class="style-options" id="styleOptions"></div>
+          <div class="content-panel empty" id="agent1Output">
+            Agent 1 output will appear here.
+          </div>
+        </article>
+
+        <article class="glass-card agent-card fade-up">
+          <div class="agent-header">
+            <div class="agent-title">
+              <div class="agent-icon">🗺️</div>
+              <div>
+                <h4>Agent 2</h4>
+                <p>Itinerary Planner</p>
+              </div>
+            </div>
+            <div class="status-badge" id="agent2Status">Waiting</div>
+          </div>
+          <div class="context-card" id="selectedStyleCard">
+            <strong>Selected Style</strong>
+            Choose one of Agent 1's vacation styles to build the itinerary.
+          </div>
+          <div class="agent-actions">
+            <button class="secondary-button" id="generateItineraryButton" type="button" disabled>Build Itinerary</button>
+            <button class="ghost-button" id="regenerateItineraryButton" type="button" disabled>Another Version</button>
+            <button class="primary-button" id="approveItineraryButton" type="button" disabled>Approve Itinerary</button>
+          </div>
+          <div class="editor-wrap" id="itineraryEditorWrap" hidden>
+            <label class="editor-hint" for="itineraryEditor">Edit the itinerary before approval if you want to adjust hotels, places, or timing.</label>
+            <textarea class="itinerary-editor" id="itineraryEditor" placeholder="Your editable itinerary will appear here after Agent 2 generates it."></textarea>
+            <button class="secondary-button" id="applyItineraryEditsButton" type="button" disabled>Apply Edits</button>
+          </div>
+          <div class="content-panel empty" id="agent2Output">
+            Agent 2 will create the detailed itinerary after a style is selected.
+          </div>
+        </article>
+
+        <article class="glass-card agent-card fade-up">
+          <div class="agent-header">
+            <div class="agent-title">
+              <div class="agent-icon">📘</div>
+              <div>
+                <h4>Agent 3</h4>
+                <p>Travel Guide Composer</p>
+              </div>
+            </div>
+            <div class="status-badge" id="agent3Status">Waiting</div>
+          </div>
+          <div class="agent-context" id="agent3Context">
+            Once you approve an itinerary, Agent 3 will turn it into a complete travel guide.
+          </div>
+          <div class="agent-actions">
+            <button class="primary-button" id="generateGuideButton" type="button" disabled>Create Travel Guide</button>
+            <button class="secondary-button" id="copyGuideButton" type="button" disabled>Copy Travel Guide</button>
+          </div>
+          <div class="content-panel empty" id="agent3Output">
+            The final guide will combine the destination, chosen style, and approved itinerary.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="chatbot-section fade-up" id="chatbotSection">
+      <div class="section-heading">
+        <div>
+          <h3>Travel Help Chat</h3>
+          <p>Ask follow-up questions about your trip, destination, budget, local customs, safety, or general travel planning. The assistant answers from your current planner context and points you to trusted sources for verification.</p>
+        </div>
+      </div>
+
+      <div class="chatbot-layout">
+        <article class="glass-card chatbot-card">
+          <h4 style="color: var(--white);">Chat With The Travel Assistant</h4>
+          <p class="chatbot-copy">Use this for follow-up questions after the agents finish. It stays connected to Agent 1 styles, the Agent 2 itinerary, and the final Agent 3 guide so it answers about your actual plan.</p>
+          <div class="chatbot-messages" id="chatbotMessages"></div>
+          <form class="chatbot-form" id="chatbotForm">
+            <textarea class="chatbot-input" id="chatbotInput" placeholder="Ask something like: What is the best area to stay in Chennai? What should I verify before booking? What local customs matter most?"></textarea>
+            <div class="chatbot-actions">
+              <button class="primary-button" id="chatbotSendButton" type="submit">Ask Chatbot</button>
+              <button class="ghost-button" id="chatbotClearButton" type="button">Clear Chat</button>
+              <span class="chatbot-meta" id="chatbotMeta">Answers use your current destination, styles, itinerary, and final guide.</span>
+            </div>
+          </form>
+        </article>
+      </div>
+    </section>
+
+    <p class="footer-note fade-up">Built as a single-file multi-agent AI experience using HTML, CSS, JavaScript, and a live chat completion API.</p>
+  </main>
+
+  <script>
+    const apiUrl = "https://vibe-proxy-gqv4.onrender.com/v1/chat/completions";
+    const apiKey = "sk-vibe-summer-2026";
+    const chatModel = "class-chat-model";
+
+    const destinations = [
+      { name: "Tokyo", emoji: "🗼", description: "Bright city nights, food alleys, anime culture, and calm shrines in one trip." },
+      { name: "Bali", emoji: "🌴", description: "Beach clubs, jungle villas, waterfalls, and slow island mornings." },
+      { name: "Banff", emoji: "🏔️", description: "Turquoise lakes, mountain hikes, scenic drives, and cozy lodge stays." },
+      { name: "Rome", emoji: "🏛️", description: "Ancient ruins, piazza dinners, espresso stops, and timeless art." },
+      { name: "Hawaii", emoji: "🌺", description: "Volcanic coastlines, surfing, tropical food, and sunset adventures." },
+      { name: "Paris", emoji: "🥐", description: "Cafe culture, river walks, iconic museums, and elegant city views." },
+      { name: "Santorini", emoji: "🌅", description: "White cliffside villages, blue domes, sea views, and romantic nights." },
+      { name: "Switzerland", emoji: "🚞", description: "Alpine rail journeys, storybook towns, glacier views, and chocolate stops." },
+      { name: "Maldives", emoji: "🐠", description: "Overwater villas, reef snorkeling, private beaches, and luxury calm." },
+      { name: "New York", emoji: "🗽", description: "Skyline energy, Broadway nights, world food, and nonstop neighborhood discovery." }
+    ];
+
+    const trustedDestinationDirectory = {
+      tokyo: { destination: "Tokyo", country: "Japan", tourismUrl: "https://www.gotokyo.org/en/" },
+      bali: { destination: "Bali", country: "Indonesia", tourismUrl: "https://www.indonesia.travel/gb/en/destinations/bali-nusa-tenggara/bali" },
+      banff: { destination: "Banff", country: "Canada", tourismUrl: "https://www.banfflakelouise.com/" },
+      rome: { destination: "Rome", country: "Italy", tourismUrl: "https://www.turismoroma.it/en" },
+      hawaii: { destination: "Hawaii", country: "United States", tourismUrl: "https://www.gohawaii.com/" },
+      paris: { destination: "Paris", country: "France", tourismUrl: "https://parisjetaime.com/eng/" },
+      santorini: { destination: "Santorini", country: "Greece", tourismUrl: "https://www.visitgreece.gr/islands/cyclades/santorini/" },
+      switzerland: { destination: "Switzerland", country: "Switzerland", tourismUrl: "https://www.myswitzerland.com/en/" },
+      maldives: { destination: "Maldives", country: "Maldives", tourismUrl: "https://visitmaldives.com/en" },
+      "new york": { destination: "New York", country: "United States", tourismUrl: "https://www.nyctourism.com/" },
+      chennai: { destination: "Chennai", country: "India", tourismUrl: "https://www.tamilnadutourism.tn.gov.in/destinations/chennai" }
+    };
+
+    const generalTrustedSources = [
+      {
+        label: "US State Department Advisories",
+        description: "Official travel advisories and country-specific safety information.",
+        url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html/"
+      },
+      {
+        label: "CDC Travel Health",
+        description: "Official travel health notices, vaccine guidance, and health preparation advice.",
+        url: "https://wwwnc.cdc.gov/travel"
+      },
+      {
+        label: "IATA Travel Centre",
+        description: "Airline-oriented entry, passport, and transit information.",
+        url: "https://www.iatatravelcentre.com/"
+      }
+    ];
+
+    // Shared app state keeps each agent's output available across the workflow.
+    const appState = {
+      destination: "",
+      styleOptions: [],
+      selectedStyle: null,
+      itinerary: "",
+      guide: "",
+      preference: "",
+      agent1Summary: "",
+      chatMessages: [],
+      isMuted: false,
+      audioContext: null,
+      musicTimer: null,
+      musicMasterGain: null,
+      musicStarted: false,
+      itineraryEdited: false
+    };
+
+    const destinationGrid = document.getElementById("destinationGrid");
+    const destinationInput = document.getElementById("destinationInput");
+    const startPlanningButton = document.getElementById("startPlanningButton");
+    const generateStylesButton = document.getElementById("generateStylesButton");
+    const generateItineraryButton = document.getElementById("generateItineraryButton");
+    const regenerateItineraryButton = document.getElementById("regenerateItineraryButton");
+    const approveItineraryButton = document.getElementById("approveItineraryButton");
+    const generateGuideButton = document.getElementById("generateGuideButton");
+    const copyGuideButton = document.getElementById("copyGuideButton");
+    const muteButton = document.getElementById("muteButton");
+    const scrollWorkflowButton = document.getElementById("scrollWorkflowButton");
+    const preferenceSelect = document.getElementById("preferenceSelect");
+    const preferenceInput = document.getElementById("preferenceInput");
+    const itineraryEditorWrap = document.getElementById("itineraryEditorWrap");
+    const itineraryEditor = document.getElementById("itineraryEditor");
+    const applyItineraryEditsButton = document.getElementById("applyItineraryEditsButton");
+    const styleOptions = document.getElementById("styleOptions");
+    const selectedStyleCard = document.getElementById("selectedStyleCard");
+    const errorBanner = document.getElementById("errorBanner");
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const loadingTitle = document.getElementById("loadingTitle");
+    const loadingMessage = document.getElementById("loadingMessage");
+    const workflowSection = document.getElementById("workflowSection");
+    const chatbotMessages = document.getElementById("chatbotMessages");
+    const chatbotForm = document.getElementById("chatbotForm");
+    const chatbotInput = document.getElementById("chatbotInput");
+    const chatbotSendButton = document.getElementById("chatbotSendButton");
+    const chatbotClearButton = document.getElementById("chatbotClearButton");
+    const chatbotMeta = document.getElementById("chatbotMeta");
+    const stagePills = Array.from(document.querySelectorAll(".stage-pill"));
+    const agentStatus = {
+      1: document.getElementById("agent1Status"),
+      2: document.getElementById("agent2Status"),
+      3: document.getElementById("agent3Status")
+    };
+    const agentContent = {
+      1: document.getElementById("agent1Output"),
+      2: document.getElementById("agent2Output"),
+      3: document.getElementById("agent3Output")
+    };
+    const agentContext = {
+      1: document.getElementById("agent1Context"),
+      3: document.getElementById("agent3Context")
+    };
+
+    // Render the featured destinations so users can quickly seed the planner.
+    function renderDestinationCards() {
+      destinationGrid.innerHTML = destinations.map((destination) => `
+        <button class="destination-card" type="button" data-destination="${destination.name}" aria-label="Choose ${destination.name}">
+          <span class="emoji">${destination.emoji}</span>
+          <h4>${destination.name}</h4>
+          <p>${destination.description}</p>
+        </button>
+      `).join("");
+    }
+
+    function normalizeLookup(value) {
+      return value.trim().toLowerCase();
+    }
+
+    function getPreferenceText() {
+      if (preferenceSelect.value === "Other") {
+        return preferenceInput.value.trim();
+      }
+
+      return preferenceSelect.value.trim();
+    }
+
+    function syncPreferenceUi() {
+      const showCustomInput = preferenceSelect.value === "Other";
+      preferenceInput.hidden = !showCustomInput;
+      if (!showCustomInput) {
+        preferenceInput.value = "";
+      }
+      appState.preference = getPreferenceText();
+    }
+
+    function getDestinationMeta(destination = appState.destination) {
+      if (!destination) {
+        return null;
+      }
+
+      return trustedDestinationDirectory[normalizeLookup(destination)] || null;
+    }
+
+    function getTrustedSources(destination = appState.destination) {
+      const destinationMeta = getDestinationMeta(destination);
+      const sources = [...generalTrustedSources];
+
+      if (destinationMeta) {
+        sources.unshift({
+          label: `${destinationMeta.destination} Official Tourism`,
+          description: `Destination information from the official tourism source for ${destinationMeta.destination}.`,
+          url: destinationMeta.tourismUrl
+        });
+      }
+
+      return sources;
+    }
+
+    function addChatMessage(role, content) {
+      appState.chatMessages.push({ role, content });
+      renderChatMessages();
+    }
+
+    function renderChatMessages() {
+      chatbotMessages.innerHTML = appState.chatMessages.map((message) => {
+        if (message.role === "assistant") {
+          return `
+            <div class="chat-message assistant">
+              <strong>Travel Assistant</strong>
+              <div>${renderRichText(message.content)}</div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="chat-message user">
+            <strong>You</strong>
+            <div>${escapeHtml(message.content)}</div>
+          </div>
+        `;
+      }).join("");
+
+      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function getPlannerContextSummary() {
+      const destinationMeta = getDestinationMeta();
+      return [
+        `Current destination: ${appState.destination || "Not selected"}`,
+        `Country: ${destinationMeta?.country || "Unknown"}`,
+        `Requested vibe: ${appState.preference || "No custom vibe selected"}`,
+        appState.styleOptions.length ? `Agent 1 style options:\n${appState.styleOptions.map((style, index) => `${index + 1}. ${style.name}: ${style.description}`).join("\n")}` : "",
+        `Selected style: ${appState.selectedStyle?.name || "Not selected"}`,
+        `Style description: ${appState.selectedStyle?.description || "Not available"}`,
+        appState.agent1Summary ? `Agent 1 summary:\n${appState.agent1Summary}` : "",
+        `Itinerary available: ${appState.itinerary ? "Yes" : "No"}`,
+        appState.itinerary ? `Itinerary details:\n${appState.itinerary}` : "",
+        appState.guide ? `Travel guide details:\n${appState.guide}` : ""
+      ].filter(Boolean).join("\n\n");
+    }
+
+    function escapeHtml(value) {
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    // Convert simple markdown-like model output into styled HTML without external libraries.
+    function renderRichText(markdownText) {
+      const lines = markdownText.split("\n");
+      let html = "";
+      let inList = false;
+
+      lines.forEach((rawLine) => {
+        const line = rawLine.trim();
+
+        if (!line) {
+          if (inList) {
+            html += "</ul>";
+            inList = false;
+          }
+          html += "<div style='height:10px'></div>";
+          return;
+        }
+
+        if (/^#{1,4}\s/.test(line)) {
+          if (inList) {
+            html += "</ul>";
+            inList = false;
+          }
+          const level = Math.min(4, line.match(/^#+/)[0].length);
+          html += `<h${level}>${inlineFormat(line.replace(/^#{1,4}\s*/, ""))}</h${level}>`;
+          return;
+        }
+
+        if (/^[-*]\s+/.test(line) || /^\d+\.\s+/.test(line)) {
+          if (!inList) {
+            html += "<ul>";
+            inList = true;
+          }
+          html += `<li>${inlineFormat(line.replace(/^([-*]|\d+\.)\s+/, ""))}</li>`;
+          return;
+        }
+
+        if (inList) {
+          html += "</ul>";
+          inList = false;
+        }
+
+        html += `<p>${inlineFormat(line)}</p>`;
+      });
+
+      if (inList) {
+        html += "</ul>";
+      }
+
+      return html;
+    }
+
+    function inlineFormat(text) {
+      const safe = escapeHtml(text);
+      return safe
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
+    }
+
+    function setPanelContent(panel, content) {
+      panel.classList.remove("empty");
+      panel.innerHTML = renderRichText(content);
+    }
+
+    function setEmptyPanel(panel, message) {
+      panel.classList.add("empty");
+      panel.textContent = message;
+    }
+
+    function updateProgress(stage, message) {
+      const widths = { 0: "0%", 1: "34%", 2: "67%", 3: "100%" };
+      progressBar.style.width = widths[stage] || "0%";
+      progressText.textContent = message;
+
+      stagePills.forEach((pill) => {
+        const pillStage = Number(pill.dataset.stage);
+        pill.classList.remove("active", "complete");
+        if (pillStage < stage) {
+          pill.classList.add("complete");
+        } else if (pillStage === stage) {
+          pill.classList.add("active");
+        }
+      });
+    }
+
+    function setStatus(stage, label, live = false) {
+      const badge = agentStatus[stage];
+      badge.textContent = label;
+      badge.classList.toggle("live", live);
+    }
+
+    function showError(message) {
+      errorBanner.textContent = message;
+      errorBanner.classList.add("visible");
+    }
+
+    function clearError() {
+      errorBanner.textContent = "";
+      errorBanner.classList.remove("visible");
+    }
+
+    function toggleLoading(visible, title = "Planning in progress", message = "One of the agents is building your next vacation idea.") {
+      loadingOverlay.classList.toggle("visible", visible);
+      loadingOverlay.setAttribute("aria-hidden", String(!visible));
+      loadingTitle.textContent = title;
+      loadingMessage.textContent = message;
+    }
+
+    function ensureDestination() {
+      const destination = destinationInput.value.trim();
+      if (!destination) {
+        showError("Enter a destination before asking the agents to plan.");
+        destinationInput.focus();
+        return null;
+      }
+      clearError();
+      appState.destination = destination;
+      return destination;
+    }
+
+    function resetDownstream() {
+      appState.styleOptions = [];
+      appState.selectedStyle = null;
+      appState.itinerary = "";
+      appState.guide = "";
+      appState.agent1Summary = "";
+      appState.itineraryEdited = false;
+      styleOptions.innerHTML = "";
+      selectedStyleCard.innerHTML = "<strong>Selected Style</strong>Choose one of Agent 1's vacation styles to build the itinerary.";
+      generateItineraryButton.disabled = true;
+      regenerateItineraryButton.disabled = true;
+      approveItineraryButton.disabled = true;
+      generateGuideButton.disabled = true;
+      copyGuideButton.disabled = true;
+      itineraryEditorWrap.hidden = true;
+      itineraryEditor.value = "";
+      applyItineraryEditsButton.disabled = true;
+      setEmptyPanel(agentContent[2], "Agent 2 will create the detailed itinerary after a style is selected.");
+      setEmptyPanel(agentContent[3], "The final guide will combine the destination, chosen style, and approved itinerary.");
+      setStatus(2, "Waiting");
+      setStatus(3, "Waiting");
+      agentContext[3].textContent = "Once you approve an itinerary, Agent 3 will turn it into a complete travel guide.";
+    }
+
+    function selectStyle(index) {
+      appState.selectedStyle = appState.styleOptions[index];
+      document.querySelectorAll(".style-option").forEach((button, buttonIndex) => {
+        button.classList.toggle("selected", buttonIndex === index);
+      });
+
+      selectedStyleCard.innerHTML = `
+        <strong>Selected Style</strong>
+        <div><strong>${escapeHtml(appState.selectedStyle.name)}</strong></div>
+        <div style="margin-top: 6px; line-height: 1.6; color: rgba(255,255,255,0.86);">${escapeHtml(appState.selectedStyle.description)}</div>
+      `;
+
+      generateItineraryButton.disabled = false;
+      regenerateItineraryButton.disabled = false;
+      updateProgress(1, `Style selected for ${appState.destination}. Agent 2 can build the itinerary next.`);
+      setStatus(2, "Ready");
+    }
+
+    function renderStyleOptions(options) {
+      styleOptions.innerHTML = options.map((option, index) => `
+        <button class="style-option fade-up" type="button" data-index="${index}">
+          <strong>${escapeHtml(option.name)}</strong>
+          <span>${escapeHtml(option.description)}</span>
+        </button>
+      `).join("");
+    }
+
+    function extractJsonBlock(content) {
+      const fencedMatch = content.match(/```json\s*([\s\S]*?)```/i);
+      if (fencedMatch) {
+        return fencedMatch[1].trim();
+      }
+
+      const firstBrace = content.indexOf("{");
+      const lastBrace = content.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        return content.slice(firstBrace, lastBrace + 1);
+      }
+
+      throw new Error("The AI response was missing the JSON structure needed for style options.");
+    }
+
+    function syncItineraryEditor(content) {
+      itineraryEditorWrap.hidden = false;
+      itineraryEditor.value = content;
+      applyItineraryEditsButton.disabled = false;
+      appState.itineraryEdited = false;
+    }
+
+    function applyItineraryEdits() {
+      const edited = itineraryEditor.value.trim();
+      if (!edited) {
+        showError("Add itinerary details before applying edits.");
+        itineraryEditor.focus();
+        return;
+      }
+
+      clearError();
+      appState.itinerary = edited;
+      appState.itineraryEdited = true;
+      setPanelContent(agentContent[2], edited);
+      updateProgress(2, `Your itinerary edits for ${appState.destination} have been applied. Approve it when ready.`);
+      setStatus(2, "Edited");
+    }
+
+    // Centralized API helper used by all three agents.
+    async function fetchAgentReply(messages) {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: chatModel,
+          temperature: 0.8,
+          messages
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API request failed with ${response.status}: ${errorText || "Unknown error"}`);
+      }
+
+      const data = await response.json();
+      const content = data?.choices?.[0]?.message?.content;
+
+      if (!content) {
+        throw new Error("The AI returned an empty response.");
+      }
+
+      return content;
+    }
+
+    async function handleChatSubmit(event) {
+      event.preventDefault();
+      const question = chatbotInput.value.trim();
+      if (!question) {
+        showError("Ask a travel question before sending the chatbot request.");
+        chatbotInput.focus();
+        return;
+      }
+
+      clearError();
+      await startBackgroundMusic();
+      addChatMessage("user", question);
+      chatbotInput.value = "";
+      chatbotSendButton.disabled = true;
+      chatbotMeta.textContent = "Researching with planner context and trusted travel references...";
+
+      try {
+        const sourceNotes = getTrustedSources().map((source) => `- ${source.label}: ${source.url} | ${source.description}`).join("\n");
+        const plannerContext = getPlannerContextSummary();
+        const history = appState.chatMessages.slice(-6).map((message) => ({
+          role: message.role === "assistant" ? "assistant" : "user",
+          content: message.content
+        }));
+
+        const reply = await fetchAgentReply([
+          {
+            role: "system",
+            content: "You are a travel help chatbot inside Dream Vacation Planner. Your first job is to answer from the user's current planner context: Agent 1 styles, selected style, Agent 2 itinerary, and Agent 3 final guide. Do not drift into generic trivia if the answer is already implied by the plan. If the user asks about the final itinerary, answer specifically from that itinerary and guide. You may use the trusted source list internally as grounding, but do not output a separate sources section unless the user explicitly asks for verification links. If the question requires live visa, entry, safety, or health updates, say that the user should still verify official current rules. Keep answers practical and concise."
+          },
+          {
+            role: "user",
+            content: `Planner context:\n${plannerContext}\n\nTrusted sources:\n${sourceNotes}`
+          },
+          ...history,
+          {
+            role: "user",
+            content: question
+          }
+        ]);
+
+        addChatMessage("assistant", reply);
+      } catch (error) {
+        showError(error.message);
+        addChatMessage("assistant", "I could not answer that question right now. Please try again. If you are asking about your plan, I work best after Agent 1, Agent 2, or Agent 3 has generated content.");
+      } finally {
+        chatbotSendButton.disabled = false;
+        chatbotMeta.textContent = "Answers use your current destination, styles, itinerary, and final guide.";
+      }
+    }
+
+    function clearChat() {
+      appState.chatMessages = [
+        {
+          role: "assistant",
+          content: "Ask me about destinations, budgets, your chosen style, the current itinerary, or the final travel guide. I stay connected to the three planning agents so I can answer about your actual trip plan."
+        }
+      ];
+      renderChatMessages();
+      chatbotInput.value = "";
+      chatbotMeta.textContent = "Answers use your current destination, styles, itinerary, and final guide.";
+    }
+
+    async function copyFinalGuide() {
+      if (!appState.guide) {
+        showError("Generate the final travel guide before copying it.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(appState.guide);
+        clearError();
+        copyGuideButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copyGuideButton.textContent = "Copy Travel Guide";
+        }, 1400);
+      } catch (error) {
+        showError("Copy failed in this browser. Try again after interacting with the page.");
+      }
+    }
+
+    // Agent 1 proposes three vacation directions for the chosen destination.
+    async function runAgent1() {
+      const destination = ensureDestination();
+      if (!destination) {
+        return;
+      }
+
+      resetDownstream();
+      setStatus(1, "Thinking", true);
+      updateProgress(1, `Agent 1 is generating vacation styles for ${destination}.`);
+      agentContext[1].textContent = `Agent 1 is exploring three distinct travel styles for ${destination}.`;
+      setEmptyPanel(agentContent[1], "Agent 1 is building your style options.");
+      const preference = getPreferenceText();
+      appState.preference = preference;
+      toggleLoading(true, "Agent 1 is exploring styles", `Generating vacation styles for ${destination}${preference ? ` with a ${preference} vibe` : ""}.`);
+
+      try {
+        const content = await fetchAgentReply([
+          {
+            role: "system",
+            content: "You are Agent 1 in a multi-agent vacation planner. Return valid JSON only. No markdown outside JSON. Create exactly four vacation styles for the destination. If the user gives a vibe request, at least one style must directly match it, even if that means using scenic neighborhoods, nearby day trips, royal parks, river walks, gardens, or hybrid city-plus-nature experiences. JSON format: { \"intro\": string, \"styles\": [{ \"name\": string, \"description\": string, \"highlights\": [string, string, string] }] }"
+          },
+          {
+            role: "user",
+            content: `Destination: ${destination}. User vibe request: ${preference || "none provided"}. Make the styles feel different and realistic. Examples of style directions include Adventure, Relaxation, Food & Culture, Beach Escape, Nature Walks, Scenic Day Trips, Luxury, Family, or Nightlife, but adapt them to the destination.`
+          }
+        ]);
+
+        const parsed = JSON.parse(extractJsonBlock(content));
+        if (!Array.isArray(parsed.styles) || parsed.styles.length !== 4) {
+          throw new Error("Agent 1 did not return exactly four vacation styles.");
+        }
+
+        appState.styleOptions = parsed.styles;
+        renderStyleOptions(parsed.styles);
+
+        const summary = [parsed.intro, "", ...parsed.styles.map((style, index) => {
+          const highlights = Array.isArray(style.highlights) ? style.highlights.map((item) => `- ${item}`).join("\n") : "";
+          return `### Option ${index + 1}: ${style.name}\n${style.description}${highlights ? `\n${highlights}` : ""}`;
+        })].join("\n");
+
+        appState.agent1Summary = summary;
+        setPanelContent(agentContent[1], summary);
+        setStatus(1, "Ready");
+        setStatus(2, "Select Style");
+        updateProgress(1, `Agent 1 finished. Choose one of the four styles for ${destination} to continue.`);
+      } catch (error) {
+        setStatus(1, "Error");
+        showError(error.message);
+        setEmptyPanel(agentContent[1], "Agent 1 could not generate styles. Try again.");
+      } finally {
+        toggleLoading(false);
+      }
+    }
+
+    // Agent 2 expands the chosen style into a practical itinerary.
+    async function runAgent2(regenerate = false) {
+      const destination = ensureDestination();
+      if (!destination || !appState.selectedStyle) {
+        showError("Choose a vacation style before building the itinerary.");
+        return;
+      }
+
+      clearError();
+      setStatus(2, "Planning", true);
+      updateProgress(2, `Agent 2 is creating an itinerary for the ${appState.selectedStyle.name} style in ${destination}.`);
+      setEmptyPanel(agentContent[2], "Agent 2 is building attractions, stays, transport, and costs.");
+      toggleLoading(true, "Agent 2 is building your itinerary", `Creating a ${appState.selectedStyle.name} plan for ${destination}.`);
+
+      try {
+        const content = await fetchAgentReply([
+          {
+            role: "system",
+            content: "You are Agent 2 in a multi-agent travel planner. Return polished markdown with clear headings and bullet lists. Include these sections in order: Overview, Best Areas To Stay, Hotel Recommendations, Day-by-Day Plan, Attractions, Activities, Restaurant Recommendations, Transportation, Estimated Costs, Backup Options, and Why This Plan Works. Make it detailed and practical. For hotels, recommend at least 3 named options across budget, mid-range, and luxury when possible. For places and activities, give multiple options rather than one single choice. Include estimated prices, what each place is known for, and optional swaps for different budgets or energy levels."
+          },
+          {
+            role: "user",
+            content: `Destination: ${destination}\nChosen vacation style: ${appState.selectedStyle.name}\nStyle description: ${appState.selectedStyle.description}\n${regenerate ? "Create a noticeably different version from the previous itinerary while keeping the same style." : "Create the first itinerary version."}\nMake the output rich with hotel choices, multiple attraction options, restaurant choices, transportation ideas, and more than one activity option per day when relevant.`
+          }
+        ]);
+
+        appState.itinerary = content;
+        syncItineraryEditor(content);
+        setPanelContent(agentContent[2], content);
+        setStatus(2, "Ready");
+        approveItineraryButton.disabled = false;
+        generateGuideButton.disabled = false;
+        updateProgress(2, `Agent 2 finished. Review the itinerary, approve it, or ask for another version.`);
+      } catch (error) {
+        setStatus(2, "Error");
+        showError(error.message);
+        setEmptyPanel(agentContent[2], "Agent 2 could not create an itinerary. Try again.");
+        approveItineraryButton.disabled = true;
+        generateGuideButton.disabled = true;
+      } finally {
+        toggleLoading(false);
+      }
+    }
+
+    // Approval marks the itinerary as the source of truth for Agent 3.
+    function approveItinerary() {
+      if (!appState.itinerary) {
+        showError("Generate an itinerary before approving it.");
+        return;
+      }
+
+      clearError();
+      const approvedItinerary = itineraryEditor.value.trim() || appState.itinerary;
+      appState.itinerary = approvedItinerary;
+      setPanelContent(agentContent[2], approvedItinerary);
+      updateProgress(2, `Itinerary approved for ${appState.destination}. Agent 3 can now create the final guide.`);
+      setStatus(2, "Approved");
+      setStatus(3, "Ready");
+      agentContext[3].textContent = `Agent 3 will transform the approved ${appState.selectedStyle.name} itinerary into a complete guide for ${appState.destination}.`;
+      generateGuideButton.disabled = false;
+    }
+
+    // Agent 3 transforms the approved itinerary into a full travel guide.
+    async function runAgent3() {
+      const destination = ensureDestination();
+      if (!destination || !appState.selectedStyle || !appState.itinerary) {
+        showError("Complete Agent 1 and Agent 2 before generating the final guide.");
+        return;
+      }
+
+      clearError();
+      setStatus(3, "Writing", true);
+      updateProgress(3, `Agent 3 is turning the approved plan into a travel guide for ${destination}.`);
+      setEmptyPanel(agentContent[3], "Agent 3 is preparing the final guide, packing list, customs, and day-by-day schedule.");
+      toggleLoading(true, "Agent 3 is composing your travel guide", `Finalizing the ${appState.selectedStyle.name} guide for ${destination}.`);
+
+      try {
+        const content = await fetchAgentReply([
+          {
+            role: "system",
+            content: "You are Agent 3 in a multi-agent travel planner. Return polished markdown with clear headings and bullet lists. Include these sections: Trip Summary, Day-by-Day Schedule, Packing List, Travel Tips, Local Customs, Safety Advice, Budget Estimate, Must-Try Foods, and Final Recommendation. Use the approved itinerary as the source of truth."
+          },
+          {
+            role: "user",
+            content: `Destination: ${destination}\nChosen vacation style: ${appState.selectedStyle.name}\nStyle description: ${appState.selectedStyle.description}\nApproved itinerary:\n${appState.itinerary}`
+          }
+        ]);
+
+        appState.guide = content;
+        setPanelContent(agentContent[3], content);
+        setStatus(3, "Complete");
+        copyGuideButton.disabled = false;
+        updateProgress(3, `Your multi-agent travel guide for ${destination} is ready.`);
+      } catch (error) {
+        setStatus(3, "Error");
+        showError(error.message);
+        setEmptyPanel(agentContent[3], "Agent 3 could not create the final guide. Try again.");
+      } finally {
+        toggleLoading(false);
+      }
+    }
+
+    // Gentle looping background music is synthesized in-browser so the app works without extra files.
+    function initializeAudio() {
+      if (!appState.audioContext) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          appState.audioContext = new AudioContextClass();
+        }
+      }
+
+      return appState.audioContext;
+    }
+
+    function noteToFrequency(note) {
+      const noteMatch = note.match(/^([A-G])([#b]?)(\d)$/);
+      if (!noteMatch) {
+        return 440;
+      }
+
+      const [, letter, accidental, octaveString] = noteMatch;
+      const semitoneMap = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+      let semitone = semitoneMap[letter] + (Number(octaveString) + 1) * 12;
+
+      if (accidental === "#") {
+        semitone += 1;
+      } else if (accidental === "b") {
+        semitone -= 1;
+      }
+
+      return 440 * Math.pow(2, (semitone - 69) / 12);
+    }
+
+    function ensureMusicMasterGain(context) {
+      if (!appState.musicMasterGain) {
+        const masterGain = context.createGain();
+        masterGain.gain.value = 0.14;
+        masterGain.connect(context.destination);
+        appState.musicMasterGain = masterGain;
+      }
+
+      return appState.musicMasterGain;
+    }
+
+    function playAmbientNote(context, frequency, startTime, duration, volume, type, detune = 0) {
+      const oscillator = context.createOscillator();
+      const gainNode = context.createGain();
+      const filterNode = context.createBiquadFilter();
+
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, startTime);
+      oscillator.detune.setValueAtTime(detune, startTime);
+
+      filterNode.type = "lowpass";
+      filterNode.frequency.setValueAtTime(1400, startTime);
+      filterNode.Q.value = 0.4;
+
+      gainNode.gain.setValueAtTime(0.0001, startTime);
+      gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.38);
+      gainNode.gain.linearRampToValueAtTime(volume * 0.78, startTime + Math.max(0.45, duration - 0.55));
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+      oscillator.connect(filterNode);
+      filterNode.connect(gainNode);
+      gainNode.connect(ensureMusicMasterGain(context));
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration + 0.04);
+    }
+
+    function scheduleTravelPhrase(context, startTime = context.currentTime + 0.05) {
+      const chords = [
+        ["C4", "E4", "G4"],
+        ["A3", "C4", "E4"],
+        ["F3", "A3", "C4"],
+        ["G3", "B3", "D4"]
+      ];
+      const melody = [
+        { note: "G4", offset: 0.24, duration: 0.9 },
+        { note: "A4", offset: 1.28, duration: 0.82 },
+        { note: "C5", offset: 2.2, duration: 1.1 },
+        { note: "A4", offset: 3.55, duration: 0.9 },
+        { note: "G4", offset: 4.52, duration: 0.92 },
+        { note: "E4", offset: 5.45, duration: 1.25 }
+      ];
+      const shimmer = [
+        { note: "E5", offset: 0.72, duration: 0.55 },
+        { note: "D5", offset: 2.95, duration: 0.62 },
+        { note: "C5", offset: 5.2, duration: 0.7 }
+      ];
+
+      chords.forEach((chord, index) => {
+        const chordStart = startTime + index * 1.9;
+        chord.forEach((note, noteIndex) => {
+          const frequency = noteToFrequency(note);
+          playAmbientNote(context, frequency, chordStart, 2.25, 0.034, "sine", noteIndex * 4 - 4);
+          playAmbientNote(context, frequency / 2, chordStart, 2.1, 0.016, "triangle", noteIndex * 3);
+        });
+      });
+
+      melody.forEach((step, index) => {
+        playAmbientNote(
+          context,
+          noteToFrequency(step.note),
+          startTime + step.offset,
+          step.duration,
+          index % 2 === 0 ? 0.028 : 0.024,
+          index % 3 === 0 ? "triangle" : "sine"
+        );
+      });
+
+      shimmer.forEach((step) => {
+        playAmbientNote(context, noteToFrequency(step.note), startTime + step.offset, step.duration, 0.016, "triangle", 8);
+      });
+    }
+
+    async function startBackgroundMusic() {
+      if (appState.isMuted || appState.musicStarted) {
+        return;
+      }
+
+      const context = initializeAudio();
+      if (!context) {
+        return;
+      }
+
+      if (context.state === "suspended") {
+        await context.resume();
+      }
+
+      ensureMusicMasterGain(context);
+      appState.musicStarted = true;
+      scheduleTravelPhrase(context);
+      appState.musicTimer = window.setInterval(() => {
+        if (!appState.isMuted) {
+          scheduleTravelPhrase(context, context.currentTime + 0.08);
+        }
+      }, 8000);
+    }
+
+    function stopBackgroundMusic() {
+      if (appState.musicTimer) {
+        window.clearInterval(appState.musicTimer);
+        appState.musicTimer = null;
+      }
+
+      if (appState.musicMasterGain && appState.audioContext) {
+        const now = appState.audioContext.currentTime;
+        appState.musicMasterGain.gain.cancelScheduledValues(now);
+        appState.musicMasterGain.gain.setValueAtTime(appState.musicMasterGain.gain.value, now);
+        appState.musicMasterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+      }
+
+      appState.musicStarted = false;
+    }
+
+    destinationGrid.addEventListener("click", async (event) => {
+      const card = event.target.closest(".destination-card");
+      if (!card) {
+        return;
+      }
+
+      await startBackgroundMusic();
+      const destination = card.dataset.destination || "";
+      destinationInput.value = destination;
+      appState.destination = destination;
+      clearError();
+      destinationInput.focus();
+      workflowSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      updateProgress(0, `${destination} selected. Generate styles to start the planning pipeline.`);
+    });
+
+    styleOptions.addEventListener("click", (event) => {
+      const button = event.target.closest(".style-option");
+      if (!button) {
+        return;
+      }
+
+      selectStyle(Number(button.dataset.index));
+    });
+
+    destinationInput.addEventListener("keydown", async (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        await startBackgroundMusic();
+        runAgent1();
+      }
+    });
+
+    startPlanningButton.addEventListener("click", async () => {
+      await startBackgroundMusic();
+      runAgent1();
+    });
+
+    preferenceSelect.addEventListener("change", syncPreferenceUi);
+
+    preferenceInput.addEventListener("input", () => {
+      appState.preference = preferenceInput.value.trim();
+    });
+
+    generateStylesButton.addEventListener("click", async () => {
+      await startBackgroundMusic();
+      runAgent1();
+    });
+
+    generateItineraryButton.addEventListener("click", async () => {
+      await startBackgroundMusic();
+      runAgent2(false);
+    });
+
+    regenerateItineraryButton.addEventListener("click", async () => {
+      await startBackgroundMusic();
+      runAgent2(true);
+    });
+
+    approveItineraryButton.addEventListener("click", async () => {
+      await startBackgroundMusic();
+      approveItinerary();
+    });
+
+    generateGuideButton.addEventListener("click", async () => {
+      await startBackgroundMusic();
+      runAgent3();
+    });
+
+    copyGuideButton.addEventListener("click", copyFinalGuide);
+
+    applyItineraryEditsButton.addEventListener("click", applyItineraryEdits);
+
+    itineraryEditor.addEventListener("input", () => {
+      applyItineraryEditsButton.disabled = itineraryEditor.value.trim().length === 0;
+      if (appState.itinerary && itineraryEditor.value.trim() !== appState.itinerary.trim()) {
+        setStatus(2, "Editing");
+      }
+    });
+
+    chatbotForm.addEventListener("submit", handleChatSubmit);
+
+    chatbotClearButton.addEventListener("click", clearChat);
+
+    scrollWorkflowButton.addEventListener("click", () => {
+      workflowSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    muteButton.addEventListener("click", async () => {
+      appState.isMuted = !appState.isMuted;
+      muteButton.textContent = appState.isMuted ? "🔇 Music Off" : "🎵 Music On";
+      muteButton.setAttribute("aria-pressed", String(appState.isMuted));
+
+      if (appState.isMuted) {
+        stopBackgroundMusic();
+      } else {
+        await startBackgroundMusic();
+      }
+    });
+
+    // Render the initial featured destination cards on page load.
+    renderDestinationCards();
+    syncPreferenceUi();
+    clearChat();
+    updateProgress(0, "Waiting for your destination.");
+  </script>
+</body>
+</html>
